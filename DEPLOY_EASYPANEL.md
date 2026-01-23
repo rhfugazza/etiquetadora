@@ -1,22 +1,19 @@
-EasyPanel deployment (single app)
+EasyPanel deployment (API only)
 ===============================
 
 This repo is deployed as one EasyPanel app that serves:
 - FastAPI API
-- Lovable/Vite web app (served by FastAPI)
 
 n8n should run as a separate EasyPanel app.
 
-Single app (API + Web)
-----------------------
+Single app (API)
+----------------
 1) Create a new app in EasyPanel from GitHub.
 2) Build type: Dockerfile
 3) Dockerfile path: `Dockerfile`
 4) Expose port: `8000`
 5) Add a persistent volume mounted at `/data`
-6) Build arg:
-   - `VITE_N8N_WEBHOOK_BASE_URL=https://your-n8n-domain/webhook`
-7) Environment variables:
+6) Environment variables:
    - `API_KEY` = `ROTATIVA-PRINT-2025` (or your own)
    - Optional (already defaulted in Dockerfile):
      - `QUEUE_FILE=/data/queue`
@@ -52,5 +49,4 @@ On the PC connected to the printer:
 
 Note
 ----
-The web app is built inside the root Dockerfile. You do not need a separate
-Dockerfile for `print-queue-fairy` in this setup.
+The Lovable front-end will be deployed later as a separate app.
