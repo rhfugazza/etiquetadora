@@ -1,0 +1,199 @@
+{
+  "name": "Lovable - Etiquetas",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "/app/jobs",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "18da6e64-b086-41b3-977e-3633c9e0732c",
+      "name": "Listar Fila",
+      "webhookId": "2968b52b-31ff-461f-a251-b25f7623f981"
+    },
+    {
+      "parameters": {
+        "url": "http://127.0.0.1:8000/jobs",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-Key",
+              "value": "ROTATIVA-PRINT-2025"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        208,
+        0
+      ],
+      "id": "f572fe51-2a47-448f-9f7c-d40445f1e446",
+      "name": "Ve a fila",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "=app/print-next",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        240
+      ],
+      "id": "fae29b59-66fa-45f1-9108-e7c892fd80b1",
+      "name": "Recebe solicitação",
+      "webhookId": "2968b52b-31ff-461f-a251-b25f7623f981"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "/app/reorder",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        432
+      ],
+      "id": "83bfbf22-8e5b-46ba-81e5-77b0b6f0c385",
+      "name": "Reordena fila",
+      "webhookId": "2968b52b-31ff-461f-a251-b25f7623f981"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://127.0.0.1:8000/jobs/reorder",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-Key",
+              "value": "ROTATIVA-PRINT-2025"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { \"ordered_ids\": $json.body.ordered_ids } }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        208,
+        432
+      ],
+      "id": "57389c64-490c-4c7c-8ffd-5ee663cafe16",
+      "name": "Envia"
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        416,
+        0
+      ],
+      "id": "ba0ba74a-28fc-4d26-8f76-5f0ae4601052",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://127.0.0.1:8000/jobs/print-next",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-Key",
+              "value": "ROTATIVA-PRINT-2025"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        208,
+        240
+      ],
+      "id": "9a18f780-29e9-4023-b2f0-85dba2f0dc30",
+      "name": "Imprime proximo"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Listar Fila": {
+      "main": [
+        [
+          {
+            "node": "Ve a fila",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recebe solicitação": {
+      "main": [
+        [
+          {
+            "node": "Imprime proximo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reordena fila": {
+      "main": [
+        [
+          {
+            "node": "Envia",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ve a fila": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "593fe989-23e0-49c3-b37d-da4043e0c053",
+  "meta": {
+    "instanceId": "3ff265520367a2ecbfd328d0d7bc95db92216b6df2869981717d326e5fc877ca"
+  },
+  "id": "AZrDX6n8eD2iTQSU",
+  "tags": []
+}

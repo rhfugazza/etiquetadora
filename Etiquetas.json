@@ -1,0 +1,320 @@
+{
+  "name": "Etiquetas",
+  "nodes": [
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1jiKlEhI0mBVi8GwkHO62s7-yvWXZ-BYkc5QO50P2qsE",
+          "mode": "list",
+          "cachedResultName": "Etiquetas",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1jiKlEhI0mBVi8GwkHO62s7-yvWXZ-BYkc5QO50P2qsE/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1823990027,
+          "mode": "list",
+          "cachedResultName": "Etiquetas",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1jiKlEhI0mBVi8GwkHO62s7-yvWXZ-BYkc5QO50P2qsE/edit#gid=1823990027"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        32,
+        0
+      ],
+      "id": "acf5d8e0-bcf8-482b-bec8-9e8e4ecc4248",
+      "name": "Etiquetas",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "NMBQKqIT3Uwsh2lm",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://127.0.0.1:8000/jobs",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-Key",
+              "value": "ROTATIVA-PRINT-2025"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"nome\": \"{{ $('Etiquetas').first().json['Nome do Folheto'] }}\",\n  \"quantidade\": {{ $json['Quant. por Pacote'] }},\n  \"etiquetas\": {{ $('Etiquetas').first().json['Quant. de Pacotes'] }}\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        800,
+        -112
+      ],
+      "id": "b967816b-9b2d-44b7-b666-5f43796bfc5d",
+      "name": "Envia para Impressora"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "c383b405-7cd2-4fee-a582-503d12a82897",
+              "leftValue": "={{ $json['Nome do Folheto'] }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        352,
+        0
+      ],
+      "id": "bdcfba49-a950-4095-bd67-2e1195b073ec",
+      "name": "If"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        880,
+        176
+      ],
+      "id": "47e7c6ff-1ea7-4cfe-9c73-d79252ecb5b6",
+      "name": "No Operation, do nothing"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        560,
+        -96
+      ],
+      "id": "5524de1f-2f82-46d3-96b5-6c546ad67d04",
+      "name": "Limit"
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "documentId": {
+          "__rl": true,
+          "value": "1jiKlEhI0mBVi8GwkHO62s7-yvWXZ-BYkc5QO50P2qsE",
+          "mode": "list",
+          "cachedResultName": "Etiquetas",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1jiKlEhI0mBVi8GwkHO62s7-yvWXZ-BYkc5QO50P2qsE/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1823990027,
+          "mode": "list",
+          "cachedResultName": "Etiquetas",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1jiKlEhI0mBVi8GwkHO62s7-yvWXZ-BYkc5QO50P2qsE/edit#gid=1823990027"
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1008,
+        -112
+      ],
+      "id": "bd7a391b-3919-4ac8-92c9-4095ab8dc41f",
+      "name": "Roda a Fila",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "NMBQKqIT3Uwsh2lm",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 21
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -320,
+        0
+      ],
+      "id": "c8c9fbe3-66cd-4349-94eb-f84449ef79c2",
+      "name": "Define dia e Começa"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://127.0.0.1:8000/jobs/clear",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-Key",
+              "value": "ROTATIVA-PRINT-2025"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -192,
+        256
+      ],
+      "id": "a5e0d7a8-f78c-45ac-b075-226fc2f6b51f",
+      "name": "Limpa FIla"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 20,
+              "triggerAtMinute": 59
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -400,
+        256
+      ],
+      "id": "5e0126c1-9379-4c82-8505-8cbf5a8b8556",
+      "name": "Define dia e Começa2"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Etiquetas": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Limit",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit": {
+      "main": [
+        [
+          {
+            "node": "Envia para Impressora",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Envia para Impressora": {
+      "main": [
+        [
+          {
+            "node": "Roda a Fila",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Roda a Fila": {
+      "main": [
+        [
+          {
+            "node": "Etiquetas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Define dia e Começa": {
+      "main": [
+        [
+          {
+            "node": "Etiquetas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Define dia e Começa2": {
+      "main": [
+        [
+          {
+            "node": "Limpa FIla",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "af6d67e0-365f-4838-befc-b5bf1c083409",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "3ff265520367a2ecbfd328d0d7bc95db92216b6df2869981717d326e5fc877ca"
+  },
+  "id": "0Uq9HuThdBjdqY3M",
+  "tags": []
+}
