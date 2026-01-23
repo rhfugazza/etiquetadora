@@ -1,10 +1,12 @@
-﻿from fastapi import FastAPI, HTTPException, Header, Depends
+from fastapi import FastAPI, HTTPException, Header, Depends
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from typing import List, Optional
 import json
 import uuid
 import os
 from datetime import datetime
+from pathlib import Path
 
 app = FastAPI()
 
@@ -15,6 +17,8 @@ QUEUE_FILE = os.getenv("QUEUE_FILE", os.path.join(BASE_DIR, "queue"))
 PRINT_QUEUE_FILE = os.getenv("PRINT_QUEUE_FILE", os.path.join(BASE_DIR, "print_queue"))
 INFLIGHT_FILE = os.getenv("INFLIGHT_FILE", os.path.join(BASE_DIR, "inflight"))
 LOG_FILE = os.getenv("LOG_FILE", os.path.join(BASE_DIR, "print_log"))
+FRONTEND_DIR = os.getenv("FRONTEND_DIR")
+FRONTEND_PATH = Path(FRONTEND_DIR).resolve() if FRONTEND_DIR else None
 
 
 class Job(BaseModel):
@@ -137,6 +141,15 @@ def resolve_agent_id(payload: Optional[AgentClaim], x_agent_id: Optional[str]):
     if x_agent_id:
         return x_agent_id
     return "unknown"
+
+
+def safe_frontend_path(path: str):
+    if not FRONTEND_PATH:
+        return None
+    candidate = (FRONTEND_PATH / path).resolve()
+    if not candidate.is_relative_to(FRONTEND_PATH):
+        return None
+    return candidate
 
 
 @app.get("/jobs", dependencies=[Depends(require_api_key)])
@@ -265,3 +278,22 @@ def agent_report(payload: AgentReport):
         return {"message": "Reportado erro, reencaminhado"}
 
     raise HTTPException(status_code=400, detail="Status invalido")
+
+
+if FRONTEND_PATH and FRONTEND_PATH.is_dir():
+    INDEX_FILE = FRONTEND_PATH / "index.html"
+
+    @app.get("/")
+    def serve_index():
+        if not INDEX_FILE.is_file():
+            raise HTTPException(status_code=404, detail="Frontend nao encontrado")
+        return FileResponse(INDEX_FILE)
+
+    @app.get("/{path:path}")
+    def serve_spa(path: str):
+        candidate = safe_frontend_path(path)
+        if candidate and candidate.is_file():
+            return FileResponse(candidate)
+        if INDEX_FILE.is_file():
+            return FileResponse(INDEX_FILE)
+        raise HTTPException(status_code=404, detail="Frontend nao encontrado")
