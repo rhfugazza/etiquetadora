@@ -26,18 +26,21 @@ def main():
 
     altura_etiqueta = dc.GetDeviceCaps(10)
 
-    # Fontes
-    fonte_nome = win32ui.CreateFont({"name": "Arial", "height": 80, "weight": 800})
-    fonte_quantidade = win32ui.CreateFont({"name": "Arial", "height": 140, "weight": 900})
-    fonte_pacote = win32ui.CreateFont({"name": "Arial", "height": 60, "weight": 800})
+    # Altura total da etiqueta (para o rodapé)
+    altura_total = dc.GetDeviceCaps(10)
 
-    # Espaçamentos
-    margem_topo = 20
-    espaco_entre = 15
-    margem_base = 25
+    # Fontes GRANDES para 62mm
+    fonte_nome = win32ui.CreateFont({"name": "Arial", "height": 90, "weight": 800})
+    fonte_quantidade = win32ui.CreateFont({"name": "Arial", "height": 160, "weight": 900})
+    fonte_pacote = win32ui.CreateFont({"name": "Arial", "height": 70, "weight": 800})
+
+    # Espaçamentos para 62mm
+    margem_topo = 30
+    espaco_entre = 20
+    margem_base = 40
 
     # ✅ UM ÚNICO JOB (um StartDoc só)
-    dc.StartDoc("Lote Etiquetas")
+    dc.StartDoc("Lote 62x100")
     try:
         for i in range(1, total_pacotes + 1):
             pacote_txt = f"{i}/{total_pacotes}"
@@ -57,7 +60,7 @@ def main():
             # Pacote (ancorado embaixo)
             dc.SelectObject(fonte_pacote)
             _, h_pacote = dc.GetTextExtent(pacote_txt)
-            y_pacote = max(0, altura_etiqueta - margem_base - h_pacote)
+            y_pacote = max(0, altura_total - margem_base - h_pacote)
             center_text(dc, y_pacote, pacote_txt)
 
             dc.EndPage()
@@ -67,7 +70,7 @@ def main():
     finally:
         dc.DeleteDC()
 
-    print(f"Lote enviado: 1/{total_pacotes} até {total_pacotes}/{total_pacotes} (corte no final via driver)")
+    print(f"Lote enviado: {total_pacotes} etiquetas em 62mm")
 
 if __name__ == "__main__":
     main()

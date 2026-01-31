@@ -2,6 +2,7 @@
   "api_base_url": "http://127.0.0.1:8000",
   "api_key": "ROTATIVA-PRINT-2025",
   "agent_id": "pc-impressora-01",
+  "dry_run": false,
   "poll_seconds": 5,
   "request_timeout_seconds": 15
 }

@@ -1,20 +1,20 @@
-FROM python:3.12-slim
+FROM node:20-alpine AS build
 
 WORKDIR /app
 
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
-ENV QUEUE_FILE=/data/queue
-ENV PRINT_QUEUE_FILE=/data/print_queue
-ENV INFLIGHT_FILE=/data/inflight
-ENV LOG_FILE=/data/print_log
-RUN mkdir -p /data
+COPY package.json package-lock.json ./
+RUN npm install --no-audit --no-fund
 
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+COPY . .
 
-COPY server.py .
+ARG VITE_N8N_WEBHOOK_BASE_URL
+ENV VITE_N8N_WEBHOOK_BASE_URL=$VITE_N8N_WEBHOOK_BASE_URL
 
-EXPOSE 8000
+RUN npm run build
 
-CMD ["uvicorn", "server:app", "--host", "0.0.0.0", "--port", "8000"]
+FROM nginx:1.27-alpine
+
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY --from=build /app/dist /usr/share/nginx/html
+
+EXPOSE 80

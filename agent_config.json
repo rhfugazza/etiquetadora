@@ -1,0 +1,7 @@
+{
+  "api_base_url": "https://disparo-etiquetadora.di6lja.easypanel.host",
+  "api_key": "ROTATIVA-PRINT-2025",
+  "agent_id": "pc-teste",
+  "poll_seconds": 5,
+  "request_timeout_seconds": 15
+}

@@ -11,6 +11,18 @@ CONFIG_FILE = os.path.join(BASE_DIR, "agent_config.json")
 PRINT_SCRIPT = os.path.join(BASE_DIR, "imprimir_lote.py")
 
 
+def parse_bool(value, default=False):
+    if value is None:
+        return default
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, (int, float)):
+        return bool(value)
+    if isinstance(value, str):
+        return value.strip().lower() in {"1", "true", "yes", "y", "on"}
+    return default
+
+
 def load_config(path):
     if not os.path.exists(path):
         raise FileNotFoundError(
@@ -25,6 +37,7 @@ def load_config(path):
     agent_id = os.getenv("AGENT_ID", data.get("agent_id"))
     poll_seconds = int(os.getenv("POLL_SECONDS", data.get("poll_seconds", 5)))
     timeout_seconds = int(os.getenv("REQUEST_TIMEOUT", data.get("request_timeout_seconds", 15)))
+    dry_run = parse_bool(os.getenv("DRY_RUN"), data.get("dry_run", False))
 
     if not api_base_url or not api_key:
         raise ValueError("api_base_url e api_key sao obrigatorios")
@@ -35,6 +48,7 @@ def load_config(path):
         "agent_id": agent_id or os.getenv("COMPUTERNAME", "agent"),
         "poll_seconds": poll_seconds,
         "timeout_seconds": timeout_seconds,
+        "dry_run": dry_run,
     }
 
 
@@ -93,7 +107,9 @@ def report_job(config, job_id, status, error_message=None):
     )
 
 
-def run_print(job):
+def run_print(job, dry_run=False):
+    if dry_run:
+        return True, ""
     if not os.path.exists(PRINT_SCRIPT):
         return False, f"print script nao encontrado: {PRINT_SCRIPT}"
 
@@ -125,6 +141,7 @@ def run_print(job):
 def parse_args():
     parser = argparse.ArgumentParser(description="Print agent")
     parser.add_argument("--once", action="store_true", help="processa um job e sai")
+    parser.add_argument("--dry-run", action="store_true", help="nao imprime, apenas confirma")
     return parser.parse_args()
 
 
@@ -136,7 +153,12 @@ def main():
         print(f"Config error: {e}")
         return 1
 
+    if args.dry_run:
+        config["dry_run"] = True
+
     print(f"Agent started. Base URL: {config['api_base_url']}")
+    if config["dry_run"]:
+        print("DRY RUN enabled: printing is skipped.")
 
     while True:
         try:
@@ -155,7 +177,7 @@ def main():
             continue
 
         print(f"Printing job {job.get('id')} - {job.get('nome')}")
-        ok, err = run_print(job)
+        ok, err = run_print(job, config["dry_run"])
         status = "success" if ok else "failed"
 
         try:
