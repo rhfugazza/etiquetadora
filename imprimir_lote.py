@@ -39,8 +39,8 @@ def main():
     espaco_entre = 20
     margem_base = 40
 
-    # ✅ UM ÚNICO JOB (um StartDoc só)
-    dc.StartDoc("Lote 62x100")
+    # ✅ UM ÚNICO JOB (um StartDoc só para o lote inteiro)
+    dc.StartDoc("Lote Continuo Rotativa")
     try:
         for i in range(1, total_pacotes + 1):
             pacote_txt = f"{i}/{total_pacotes}"
@@ -65,12 +65,12 @@ def main():
 
             dc.EndPage()
 
-        # ✅ EndDoc só no final = fim do job (driver tende a cortar aqui)
+        # ✅ EndDoc só aqui = Fim do lote (A impressora corta agora)
         dc.EndDoc()
     finally:
         dc.DeleteDC()
 
-    print(f"Lote enviado: {total_pacotes} etiquetas em 62mm")
+    print(f"Lote enviado: {total_pacotes} etiquetas (Continua)")
 
 if __name__ == "__main__":
     main()
